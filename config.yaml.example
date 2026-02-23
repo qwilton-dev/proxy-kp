@@ -1,0 +1,47 @@
+server:
+  port: 8080
+  host: "0.0.0.0"
+  read_timeout: 10s
+  write_timeout: 10s
+
+tls:
+  enabled: false
+  cert_file: "/path/to/cert.pem"
+  key_file: "/path/to/key.pem"
+
+backends:
+  # For local development (without Docker):
+  # - url: "http://localhost:8001"
+  #   weight: 10
+  # - url: "http://localhost:8002"
+  #   weight: 20
+  # - url: "http://localhost:8003"
+  #   weight: 30
+
+  # For Docker/Docker-compose (use service names):
+  - url: "http://backend1:8001"
+    weight: 10
+  - url: "http://backend2:8002"
+    weight: 20
+  - url: "http://backend3:8003"
+    weight: 30
+
+health_check:
+  interval: 5s
+  timeout: 2s
+  endpoint: "/healthz"
+  failure_threshold: 3
+  recovery_interval: 15s
+
+cache:
+  enabled: true
+  ttl: 60s
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 600
+  burst: 100
+
+logging:
+  level: "info"
+  format: "json"

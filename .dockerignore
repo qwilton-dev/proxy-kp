@@ -1,0 +1,12 @@
+*.md
+.git
+.gitignore
+bin/
+test/
+coverage.out
+.env
+.env.local
+config.yaml
+certs/
+Dockerfile
+.dockerignore
