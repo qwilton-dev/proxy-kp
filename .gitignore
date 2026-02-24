@@ -1,4 +1,4 @@
-*.exe
 config.yaml
-./bin
+bin/
 .env
+tech.md

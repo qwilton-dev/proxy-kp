@@ -1,3 +1,6 @@
+build:
+	go build -o bin/proxy cmd/proxy/main.go
+
 docker-build:
 	docker build -t go-proxy-lb .
 
