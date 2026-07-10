@@ -12,7 +12,7 @@ import (
 )
 
 type Checker struct {
-	balancer          *balancer.SRR
+	balancer          balancer.Balancer
 	interval          time.Duration
 	timeout           time.Duration
 	endpoint          string
@@ -29,7 +29,7 @@ type Checker struct {
 }
 
 func NewChecker(
-	b *balancer.SRR,
+	b balancer.Balancer,
 	interval time.Duration,
 	timeout time.Duration,
 	endpoint string,

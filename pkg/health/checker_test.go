@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"proxy-kp/pkg/balancer"
+	"proxy-kp/pkg/balancer/srr"
 
 	"go.uber.org/zap"
 )
 
 func TestChecker_NewChecker(t *testing.T) {
-	b := balancer.NewSRR()
+	b := srr.New()
 	logger := zap.NewNop()
 
 	checker := NewChecker(b, 5*time.Second, 2*time.Second, "/healthz", 3, 15*time.Second, logger)
@@ -24,7 +25,7 @@ func TestChecker_NewChecker(t *testing.T) {
 }
 
 func TestChecker_BackendHealthy(t *testing.T) {
-	b := balancer.NewSRR()
+	b := srr.New()
 	logger := zap.NewNop()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +52,7 @@ func TestChecker_BackendHealthy(t *testing.T) {
 }
 
 func TestChecker_Stop(t *testing.T) {
-	b := balancer.NewSRR()
+	b := srr.New()
 	logger := zap.NewNop()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
