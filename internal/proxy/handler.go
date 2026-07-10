@@ -15,7 +15,7 @@ import (
 )
 
 type Handler struct {
-	balancer      *balancer.SRR
+	balancer      balancer.Balancer
 	cache         *cache.Cache
 	logger        *logger.Logger
 	cacheEnabled  bool
@@ -23,18 +23,23 @@ type Handler struct {
 }
 
 func NewHandler(
-	balancer *balancer.SRR,
+	b balancer.Balancer,
 	cache *cache.Cache,
 	logger *logger.Logger,
 	cacheEnabled bool,
 ) *Handler {
 	return &Handler{
-		balancer:     balancer,
+		balancer:     b,
 		cache:        cache,
 		logger:       logger,
 		cacheEnabled: cacheEnabled,
 		client: &http.Client{
 			Timeout: 30 * time.Second,
+			Transport: &http.Transport{
+				MaxIdleConns:        100,
+				MaxIdleConnsPerHost: 100,
+				IdleConnTimeout:     90 * time.Second,
+			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
@@ -51,6 +56,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
 		return
 	}
+
+	h.balancer.Acquire(backend.URL)
+	defer h.balancer.Release(backend.URL)
 
 	targetURL, err := url.Parse(backend.URL)
 	if err != nil {

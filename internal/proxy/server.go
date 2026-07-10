@@ -10,6 +10,8 @@ import (
 
 	"proxy-kp/internal/config"
 	"proxy-kp/pkg/balancer"
+	"proxy-kp/pkg/balancer/leastconn"
+	"proxy-kp/pkg/balancer/srr"
 	"proxy-kp/pkg/cache"
 	"proxy-kp/pkg/health"
 	"proxy-kp/pkg/logger"
@@ -24,7 +26,7 @@ type Server struct {
 	logger         *logger.Logger
 	server         *http.Server
 	tlsServer      *http.Server
-	balancer       *balancer.SRR
+	balancer       balancer.Balancer
 	healthChecker  *health.Checker
 	limiter        *ratelimit.Limiter
 	cache          *cache.Cache
@@ -34,7 +36,15 @@ type Server struct {
 }
 
 func NewServer(cfg *config.Config, log *logger.Logger) (*Server, error) {
-	b := balancer.NewSRR()
+	var b balancer.Balancer
+	switch cfg.Algorithm {
+	case "leastconn":
+		b = leastconn.New()
+		log.Info("Using LeastConnections balancer")
+	default:
+		b = srr.New()
+		log.Info("Using Smooth Round Robin balancer")
+	}
 
 	for _, backendCfg := range cfg.Backends {
 		backend := balancer.NewBackend(backendCfg.URL, backendCfg.Weight)

@@ -16,6 +16,7 @@ type Config struct {
 	Cache       CacheConfig       `yaml:"cache"`
 	RateLimit   RateLimitConfig   `yaml:"rate_limit"`
 	Logging     LoggingConfig     `yaml:"logging"`
+	Algorithm   string            `yaml:"algorithm"`
 }
 
 type ServerConfig struct {
@@ -73,11 +74,11 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
+	cfg.setDefaults()
+
 	if err := cfg.Validate(); err != nil {
 		return nil, fmt.Errorf("config validation failed: %w", err)
 	}
-
-	cfg.setDefaults()
 
 	return &cfg, nil
 }
@@ -151,6 +152,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("rate limit burst must be positive")
 	}
 
+	if c.Algorithm != "" && c.Algorithm != "srr" && c.Algorithm != "leastconn" {
+		return fmt.Errorf("algorithm must be 'srr' or 'leastconn', got '%s'", c.Algorithm)
+	}
+
 	return nil
 }
 
@@ -201,5 +206,9 @@ func (c *Config) setDefaults() {
 	}
 	if c.Logging.Format == "" {
 		c.Logging.Format = "json"
+	}
+
+	if c.Algorithm == "" {
+		c.Algorithm = "srr"
 	}
 }
