@@ -1,23 +1,19 @@
 package balancer
 
-import (
-	"sync"
-)
+import "sync"
 
 type Backend struct {
-	URL           string
-	Weight        int
-	CurrentWeight int
-	Healthy       bool
-	mu            sync.RWMutex
+	URL     string
+	Weight  int
+	Healthy bool
+	mu      sync.RWMutex
 }
 
 func NewBackend(url string, weight int) *Backend {
 	return &Backend{
-		URL:           url,
-		Weight:        weight,
-		CurrentWeight: 0,
-		Healthy:       true,
+		URL:     url,
+		Weight:  weight,
+		Healthy: true,
 	}
 }
 
